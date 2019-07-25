@@ -16,6 +16,7 @@ type (
 	DB struct {
 		Host     string `yaml:"host"`
 		Port     int    `yaml:"port"`
+		Database string `yaml:"database"`
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
 		Driver   string `yaml:"driver"`
@@ -47,12 +48,29 @@ func NewConfig(path string) (*ConfigData, error) {
 	return Config, nil
 }
 
-func (db DB) GetConnectionURL() string {
-	return fmt.Sprintf(
-		"%s:%s@/%s:%v?charset=utf8&parseTime=True&loc=Local",
-		db.User,
-		db.Password,
-		db.Host,
-		db.Port,
-	)
+func (db DB) GetConnectionDSN() string {
+	var dsn string
+
+	switch db.Driver {
+	case "mysql":
+		dsn = fmt.Sprintf(
+			"%s:%s@tcp(%s:%v)/%s?charset=utf8&parseTime=True&loc=Local",
+			db.User,
+			db.Password,
+			db.Host,
+			db.Port,
+			db.Database,
+		)
+	case "postgres":
+		dsn = fmt.Sprintf(
+			"host=%s port=%v user=%s dbname=%s password=%s",
+			db.Host,
+			db.Port,
+			db.User,
+			db.Database,
+			db.Password,
+		)
+	}
+
+	return dsn
 }
