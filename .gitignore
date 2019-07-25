@@ -1,0 +1,7 @@
+dev.yaml
+.idea/
+.git/
+.DS_Store
+.env
+tempCode*
+.vscode
